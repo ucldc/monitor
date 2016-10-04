@@ -3,6 +3,14 @@ import argparse
 import sys
 import logging
 
+from pprint import pprint as pp
+from botocore.client import Config
+
+import requests
+
+import boto3
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('url')
@@ -16,10 +24,51 @@ def main(argv=None):
         raise ValueError('Invalid log level: %s' % argv.loglevel)
     logging.basicConfig(level=numeric_level, )
 
-    check(argv.url)
+    status = check(argv.url)
+    print(status)
+    if status:
+        return 0
+    else:
+        return 1
+
+
+def restart(environment):
+    #{'application': 'potto-loris',
+    #'environment': 'pottoLoris-env-clone',
+    #'url': 'http://pottoloris-env-clone.us-west-2.elasticbeanstalk.com/'}
+    logging.debug(environment)
+    client = boto3.client(
+        'elasticbeanstalk', config=Config(region_name='us-west-2'))
+
+    response = client.describe_environments(
+        EnvironmentNames=[environment.get('environment')], )['Environments'][0]
+
+    if response['AbortableOperationInProgress']:
+        logger.info('AbortableOperationInProgress')
+        return False
+
+    if not 'http://{}/'.format(response.get('CNAME')) == environment.get(
+            'url'):
+        logger.info('{} does not match {}'.format(
+            response.get('CNAME'), environment.get('url')))
+        return False
+
+    response = client.restart_app_server(
+        EnvironmentName=environment.get('environment'), )
+    print(response)
+
 
 def check(url):
-    print('checking {} ...'.format(url))
+    logging.info('checking {} ...'.format(url))
+    try:
+        result = requests.get(url, timeout=1)
+    except requests.exceptions.ConnectTimeout:
+        return False
+
+    if result.text == 'potto-loris status okay':
+        return True
+    else:
+        return False
 
 
 if __name__ == "__main__":
