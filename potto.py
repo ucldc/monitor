@@ -46,28 +46,28 @@ def restart(environment):
 
     # is some other work already going on?
     if response['AbortableOperationInProgress']:
-        logger.warning('AbortableOperationInProgress')
+        logging.warning('AbortableOperationInProgress')
         return False
 
     # is the enviroment CNAME what I expect?
     if not 'http://{}/'.format(response.get('CNAME')) == environment.get(
             'url'):
-        logger.warning('{} does not match {}'.format(
+        logging.warning('{} does not match {}'.format(
             response.get('CNAME'), environment.get('url')))
         return False
 
     # okay to restart
     response = client.restart_app_server(
         EnvironmentName=environment.get('environment'), )
-    logger.info('restart')
-    logger.debug(response)
+    logging.info('restart')
+    logging.debug(response)
 
 
 def check(url):
     logging.info('checking {} ...'.format(url))
     try:
         result = requests.get(url, timeout=1)
-    except requests.exceptions.ConnectTimeout:
+    except requests.exceptions.ReadTimeout:
         return False
 
     if result.text == 'potto-loris status okay':
