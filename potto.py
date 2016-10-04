@@ -40,22 +40,27 @@ def restart(environment):
     client = boto3.client(
         'elasticbeanstalk', config=Config(region_name='us-west-2'))
 
+    # check some stuff before we restart
     response = client.describe_environments(
         EnvironmentNames=[environment.get('environment')], )['Environments'][0]
 
+    # is some other work already going on?
     if response['AbortableOperationInProgress']:
-        logger.info('AbortableOperationInProgress')
+        logger.warning('AbortableOperationInProgress')
         return False
 
+    # is the enviroment CNAME what I expect?
     if not 'http://{}/'.format(response.get('CNAME')) == environment.get(
             'url'):
-        logger.info('{} does not match {}'.format(
+        logger.warning('{} does not match {}'.format(
             response.get('CNAME'), environment.get('url')))
         return False
 
+    # okay to restart
     response = client.restart_app_server(
         EnvironmentName=environment.get('environment'), )
-    print(response)
+    logger.info('restart')
+    logger.debug(response)
 
 
 def check(url):
