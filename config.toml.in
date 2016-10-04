@@ -1,0 +1,12 @@
+[aws]
+region = "us-west-2"
+
+# [iiif.prod]
+# application = "potto-loris"
+# environment = "pottoLoris-env"
+# url = ""
+
+[iiif.test]
+application = "potto-loris"
+environment = "pottoLoris-env-clone"
+url = "http://10.255.255.1/"
