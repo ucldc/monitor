@@ -28,7 +28,7 @@ def check_loop():
                 # looks good
                 logging.debug('{} looks good'.format(env.get('url')))
             else:
-                logging.info('{} looks wrong, restarting'.format(
+                logging.warning('{} looks wrong, restarting'.format(
                     env.get('url')))
                 restart(env)
         time.sleep(60)
