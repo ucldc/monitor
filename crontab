@@ -1,0 +1,2 @@
+*/5 * * * *  ~/monitor/cronwatch.sh
+@reboot ~/monitor/monitor.py start > /dev/null
