@@ -16,6 +16,7 @@ import toml
 import daemonocle
 
 from potto import check, restart
+from cacheclear import checkpage, clearpage
 
 DIR = os.path.dirname(os.path.realpath(__file__))
 CONFIG = toml.loads(open(os.path.join(DIR, "config.toml")).read())
@@ -23,14 +24,23 @@ CONFIG = toml.loads(open(os.path.join(DIR, "config.toml")).read())
 
 def check_loop():
     while True:
-        for env in CONFIG['iiif'].values():
-            if check(env.get('url')):
+        for test in CONFIG['iiif'].values():
+            if check(test.get('url')):
                 # looks good
-                logging.debug('{} looks good'.format(env.get('url')))
+                logging.debug('{} looks good'.format(test.get('url')))
             else:
                 logging.warning('{} looks wrong, restarting'.format(
-                    env.get('url')))
-                restart(env)
+                    test.get('url')))
+                restart(test)
+        for test in CONFIG['cacheclear'].values():
+            if checkpage(test.get('url')):
+                # looks good
+                logging.debug('{} looks good'.format(test.get('url')))
+            else:
+                logging.warning('{} looks wrong, restarting'.format(
+                    test.get('url')))
+                clearpage(test)
+
         time.sleep(60)
 
 
