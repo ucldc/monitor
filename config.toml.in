@@ -10,3 +10,8 @@ region = "us-west-2"
 application = "potto-loris"
 environment = "pottoLoris-env-clone"
 url = "http://10.255.255.1/"
+
+[cacheclear.homepage]
+url = "https://..."
+distrubution = "ExxxX"
+paths = "/"
